@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const admin = require("firebase-admin");
 
-const serviceAccount = require("./serviceAccountKey.json");
+const serviceAccount = JSON.parse(process.env.Firebase_key);
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
@@ -38,6 +38,9 @@ app.get("/expenses", async (req, res) => {
   }
 });
 
-app.listen(5001, () => {
-  console.log("Expense Service running on port 5001");
+const PORT = process.env.PORT || 5001;
+
+app.listen(PORT, () => {
+  console.log(`Expense Service running on port ${PORT}`);
 });
+
