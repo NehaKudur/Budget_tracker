@@ -2,51 +2,29 @@
 
 const express = require("express");
 const cors = require("cors");
-const admin = require("firebase-admin");
+//const admin = require("firebase-admin");
+//let serviceAccountContent;
 require("dotenv").config(); 
 
 // --- FIREBASE ADMIN INITIALIZATION (SECURE FOR RAILWAY) ---
-const fs = require("fs");
-const path = require("path");
+const admin = require("firebase-admin");
 
-const serviceAccountPath = path.join(__dirname, "serviceAccountKey.json");
+let serviceAccountContent;
 
-try {
-    fs.writeFileSync(serviceAccountPath, process.env.FIREBASE_SERVICE_ACCOUNT);
-    console.log("serviceAccountKey.json created");
-} catch (error) {
-    console.error("Error writing serice account file:", error);
-}
-
-if (process.env.NODE_ENV === "production") {
-    console.log("Initializing Firebase using secure environment variable.");
-    
-    try {
-        //const serviceAccountContent = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT.replace(/\\n/g, '\n'));
-
-        admin.initializeApp({
-            credential: admin.credential.cert(require(serviceAccountPath)),
-        });
-        
-    } catch (error) {
-        console.error("FATAL ERROR: Failed to parse FIREBASE_SERVICE_ACCOUNT JSON. Check Railway variables.");
-    }
-    
+if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+  try {
+    serviceAccountContent = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+    console.log("Firebase service account loaded from env variable.");
+  } catch (error) {
+    console.error("Error parsing Firebase service account JSON:", error);
+  }
 } else {
-    // This runs only in local development
-    console.log("Initializing Firebase using local serviceAccountKey.json.");
-    
-    try {
-        //const serviceAccount = require("./serviceAccountKey.json");
-
-        admin.initializeApp({
-            credential: admin.credential.cert(require(serviceAccountPath)),
-        });
-        
-    } catch (error) {
-        console.error("FATAL ERROR: FIREBASE_SERVICE_ACCOUNT is missing, and local serviceAccountKey.json is not found.");
-    }
+  console.error("FIREBASE_SERVICE_ACCOUNT env variable missing!");
 }
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccountContent),
+});
 
 // --- END OF FIREBASE INITIALIZATION ---
 
