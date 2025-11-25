@@ -6,15 +6,26 @@ const admin = require("firebase-admin");
 require("dotenv").config(); 
 
 // --- FIREBASE ADMIN INITIALIZATION (SECURE FOR RAILWAY) ---
+const fs = require("fs");
+const path = require("path");
+
+const serviceAccountPath = path.join(__dirname, "serviceAccountKey.json");
+
+try {
+    fs.writeFileSync(serviceAccountPath, process.env.FIREBASE_SERVICE_ACCOUNT);
+    console.log("serviceAccountKey.json created");
+} catch (error) {
+    console.error("Error writing serice account file:", error);
+}
 
 if (process.env.NODE_ENV === "production") {
     console.log("Initializing Firebase using secure environment variable.");
     
     try {
-        const serviceAccountContent = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT.replace(/\\n/g, '\n'));
+        //const serviceAccountContent = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT.replace(/\\n/g, '\n'));
 
         admin.initializeApp({
-            credential: admin.credential.cert(serviceAccountContent),
+            credential: admin.credential.cert(require(serviceAccountPath)),
         });
         
     } catch (error) {
@@ -26,10 +37,10 @@ if (process.env.NODE_ENV === "production") {
     console.log("Initializing Firebase using local serviceAccountKey.json.");
     
     try {
-        const serviceAccount = require("./serviceAccountKey.json");
+        //const serviceAccount = require("./serviceAccountKey.json");
 
         admin.initializeApp({
-            credential: admin.credential.cert(serviceAccount),
+            credential: admin.credential.cert(require(serviceAccountPath)),
         });
         
     } catch (error) {
