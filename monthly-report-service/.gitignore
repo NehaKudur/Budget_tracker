@@ -1,0 +1,6 @@
+# Dependencies: Do not upload huge folders created by npm
+node_modules/
+
+# Secrets: Do not upload your private Firebase key or environment variables
+serviceAccountKey.json
+.env
